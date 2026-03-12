@@ -1,722 +1,296 @@
-﻿<!DOCTYPE html>
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PMF — Crack Your APM Placement</title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
 <style>
-  :root {
-    --ink: #0D0D0D;
-    --paper: #F5F0E8;
-    --accent: #E84C1E;
-    --accent2: #2B5CE6;
-    --muted: #7A7468;
-    --rule: #D4CFC4;
-    --highlight: #FFF176;
-  }
-
-
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  html { scroll-behavior: smooth; }
-
-
-  body {
-    background: var(--paper);
-    color: var(--ink);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 16px;
-    line-height: 1.6;
-    overflow-x: hidden;
-  }
-
-
-  body::before {
-    content: '';
-    position: fixed; inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-    pointer-events: none; z-index: 9999; opacity: 0.5;
-  }
-
-
-  /* NAV */
-  nav {
-    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 18px 48px; background: var(--paper); border-bottom: 1.5px solid var(--ink);
-  }
-  .nav-logo { font-family: 'Bebas Neue', sans-serif; font-size: 2rem; letter-spacing: 0.08em; color: var(--ink); text-decoration: none; }
-  .nav-logo span { color: var(--accent); }
-  .nav-links { display: flex; gap: 32px; list-style: none; align-items: center; }
-  .nav-links a { text-decoration: none; color: var(--ink); font-size: 0.78rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; transition: color 0.2s; }
-  .nav-links a:hover { color: var(--accent); }
-  .nav-price { font-family: 'Bebas Neue', sans-serif; font-size: 1.2rem; color: var(--accent); letter-spacing: 0.06em; }
-  .nav-cta { background: var(--ink); color: var(--paper) !important; padding: 10px 22px; font-size: 0.75rem !important; }
-  .nav-cta:hover { background: var(--accent) !important; }
-
-
-  /* HERO */
-  .hero {
-    min-height: 100vh; padding: 136px 48px 80px;
-    display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center;
-    border-bottom: 1.5px solid var(--ink); position: relative; overflow: hidden;
-  }
-  .hero-bg-text {
-    position: absolute; bottom: -70px; left: -20px;
-    font-family: 'Bebas Neue', sans-serif; font-size: clamp(130px, 20vw, 300px);
-    color: transparent; -webkit-text-stroke: 1.5px var(--rule);
-    letter-spacing: -0.02em; user-select: none; line-height: 1; z-index: 0;
-  }
-  .hero-left { position: relative; z-index: 1; }
-  .hero-eyebrow {
-    display: inline-flex; align-items: center; gap: 10px;
-    font-size: 0.72rem; font-weight: 600; letter-spacing: 0.2em;
-    text-transform: uppercase; color: var(--accent); margin-bottom: 24px;
-  }
-  .hero-eyebrow::before { content: ''; display: block; width: 32px; height: 1.5px; background: var(--accent); }
-  h1 { font-family: 'Bebas Neue', sans-serif; font-size: clamp(62px, 8vw, 108px); line-height: 0.95; letter-spacing: 0.01em; margin-bottom: 28px; }
-  h1 em { font-style: italic; font-family: 'DM Serif Display', serif; color: var(--accent); }
-  .hero-sub { font-size: 1.05rem; color: var(--muted); max-width: 440px; margin-bottom: 36px; font-weight: 300; line-height: 1.7; }
-  .hero-sub strong { color: var(--ink); font-weight: 600; }
-  .hero-actions { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
-
-
-  .btn-primary {
-    background: var(--accent); color: white; padding: 16px 36px;
-    font-family: 'DM Sans', sans-serif; font-size: 0.82rem; font-weight: 600;
-    letter-spacing: 0.14em; text-transform: uppercase; border: none; cursor: pointer;
-    text-decoration: none; display: inline-block; transition: transform 0.2s; position: relative;
-  }
-  .btn-primary::after { content: ''; position: absolute; bottom: -4px; right: -4px; width: 100%; height: 100%; border: 1.5px solid var(--ink); transition: transform 0.2s; }
-  .btn-primary:hover { transform: translate(-3px, -3px); }
-  .btn-primary:hover::after { transform: translate(3px, 3px); }
-
-
-  .btn-ghost { color: var(--ink); font-size: 0.82rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; text-decoration: none; display: flex; align-items: center; gap: 8px; transition: gap 0.2s; }
-  .btn-ghost:hover { gap: 14px; }
-
-
-  .hero-right { position: relative; z-index: 1; }
-  .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5px; background: var(--ink); border: 1.5px solid var(--ink); }
-  .stat-box { background: var(--paper); padding: 32px 24px; transition: background 0.2s; }
-  .stat-box:hover { background: var(--highlight); }
-  .stat-num { font-family: 'Bebas Neue', sans-serif; font-size: 3.6rem; line-height: 1; color: var(--ink); margin-bottom: 6px; }
-  .stat-num span { color: var(--accent); }
-  .stat-label { font-size: 0.7rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
-  .stat-box.dark { background: var(--ink); }
-  .stat-box.dark .stat-num { color: var(--paper); }
-  .stat-box.dark .stat-label { color: var(--muted); }
-  .stat-box.dark:hover { background: var(--accent); }
-  .stat-box.dark:hover .stat-num, .stat-box.dark:hover .stat-label { color: white; }
-
-
-  /* PRICING BADGE */
-  .pricing-hero {
-    display: inline-flex; align-items: baseline; gap: 10px;
-    background: var(--ink); color: var(--paper);
-    padding: 12px 20px; margin-bottom: 28px;
-  }
-  .pricing-hero .amount { font-family: 'Bebas Neue', sans-serif; font-size: 2.4rem; letter-spacing: 0.04em; color: var(--accent); }
-  .pricing-hero .per { font-size: 0.75rem; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; }
-
-
-  /* MARQUEE */
-  .marquee-wrap { background: var(--ink); color: var(--paper); padding: 14px 0; overflow: hidden; white-space: nowrap; border-bottom: 1.5px solid var(--ink); }
-  .marquee-track { display: inline-block; animation: marquee 30s linear infinite; }
-  .marquee-track span { font-family: 'Bebas Neue', sans-serif; font-size: 1.1rem; letter-spacing: 0.12em; margin: 0 32px; }
-  .marquee-track .dot { color: var(--accent); margin: 0; }
-  @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-
-
-  /* SECTIONS */
-  section { padding: 96px 48px; border-bottom: 1.5px solid var(--ink); }
-  .section-label { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.25em; text-transform: uppercase; color: var(--accent); margin-bottom: 16px; display: flex; align-items: center; gap: 12px; }
-  .section-label::after { content: ''; flex: 1; max-width: 60px; height: 1.5px; background: var(--accent); }
-  h2 { font-family: 'Bebas Neue', sans-serif; font-size: clamp(38px, 5vw, 68px); line-height: 1; letter-spacing: 0.02em; margin-bottom: 16px; }
-  h2 em { font-style: italic; font-family: 'DM Serif Display', serif; color: var(--accent); }
-  .section-intro { max-width: 620px; color: var(--muted); font-size: 1.02rem; font-weight: 300; line-height: 1.75; margin-bottom: 56px; }
-  .section-intro strong { color: var(--ink); font-weight: 600; }
-
-
-  /* PILLARS */
-  .pillars { display: grid; grid-template-columns: repeat(4, 1fr); border: 1.5px solid var(--ink); margin-top: 56px; }
-  .pillar { padding: 44px 28px; border-right: 1.5px solid var(--ink); transition: background 0.2s; }
-  .pillar:last-child { border-right: none; }
-  .pillar:hover { background: var(--ink); }
-  .pillar:hover .pillar-icon, .pillar:hover .pillar-title, .pillar:hover .pillar-desc { color: var(--paper); }
-  .pillar:hover .pillar-icon { color: var(--accent); }
-  .pillar-icon { font-size: 2rem; margin-bottom: 20px; color: var(--accent); transition: color 0.2s; }
-  .pillar-title { font-family: 'DM Serif Display', serif; font-size: 1.25rem; margin-bottom: 10px; transition: color 0.2s; }
-  .pillar-desc { font-size: 0.82rem; color: var(--muted); line-height: 1.65; transition: color 0.2s; }
-
-
-  /* WHAT'S INCLUDED (value props) */
-  .includes-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5px; background: var(--ink); border: 1.5px solid var(--ink); margin-top: 56px; }
-  .include-card { background: var(--paper); padding: 36px 32px; transition: background 0.2s; }
-  .include-card:hover { background: var(--highlight); }
-  .include-num { font-family: 'Bebas Neue', sans-serif; font-size: 3.5rem; line-height: 1; color: var(--rule); margin-bottom: 12px; }
-  .include-title { font-family: 'DM Serif Display', serif; font-size: 1.2rem; margin-bottom: 8px; }
-  .include-desc { font-size: 0.82rem; color: var(--muted); line-height: 1.65; }
-
-
-  /* SCHEDULE — topics table */
-  .topics-table { width: 100%; border-collapse: collapse; margin-top: 56px; border: 1.5px solid var(--ink); }
-  .topics-table th { background: var(--ink); color: var(--paper); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; padding: 14px 20px; text-align: left; }
-  .topics-table td { padding: 16px 20px; border-bottom: 1px solid var(--rule); font-size: 0.88rem; vertical-align: middle; }
-  .topics-table tr:last-child td { border-bottom: none; }
-  .topics-table tr:hover td { background: var(--highlight); }
-  .week-badge { display: inline-block; background: var(--ink); color: var(--paper); font-size: 0.65rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; padding: 3px 10px; }
-  .week-badge.w1 { background: var(--accent); }
-  .week-badge.w2 { background: var(--accent2); }
-  .week-badge.w3 { background: #166534; }
-  .week-badge.w45 { background: #6B21A8; }
-  .topic-name { font-weight: 600; }
-
-
-  /* WEEKLY SCHEDULE */
-  .weeks-grid { display: flex; flex-direction: column; margin-top: 56px; }
-  .week-row { display: grid; grid-template-columns: 160px 1fr 1fr; border: 1.5px solid var(--ink); margin-top: -1.5px; }
-  .week-row:hover { z-index: 2; position: relative; }
-  .week-label { background: var(--ink); color: var(--paper); padding: 28px 20px; display: flex; flex-direction: column; justify-content: center; gap: 4px; }
-  .week-label .wnum { font-family: 'Bebas Neue', sans-serif; font-size: 3rem; line-height: 1; color: var(--accent); }
-  .week-label .wtag { font-size: 0.6rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); }
-  .week-day { padding: 24px 28px; border-right: 1.5px solid var(--rule); background: var(--paper); transition: background 0.2s; }
-  .week-day:last-child { border-right: none; }
-  .week-row:hover .week-day { background: var(--highlight); }
-  .day-header { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
-  .day-name { font-family: 'Bebas Neue', sans-serif; font-size: 1.4rem; letter-spacing: 0.06em; }
-  .day-format { font-size: 0.64rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); background: var(--rule); padding: 2px 8px; }
-  .day-format.live { background: var(--accent); color: white; }
-  .day-format.mock { background: var(--accent2); color: white; }
-  .day-format.mock1 { background: #6B21A8; color: white; }
-  .day-topic { font-size: 0.88rem; color: var(--ink); font-weight: 600; margin-bottom: 6px; }
-  .day-detail { font-size: 0.78rem; color: var(--muted); line-height: 1.5; }
-
-
-  /* MOCK CAPACITY */
-  .capacity-box { background: var(--ink); color: var(--paper); padding: 40px; margin-top: 56px; display: flex; align-items: center; gap: 48px; border: 1.5px solid var(--ink); }
-  .cap-formula { font-family: 'Bebas Neue', sans-serif; font-size: 2.2rem; letter-spacing: 0.04em; color: var(--accent); flex-shrink: 0; }
-  .cap-desc { font-size: 0.88rem; color: #8a8480; line-height: 1.6; }
-  .cap-desc strong { color: var(--paper); }
-
-
-  /* INSTRUCTORS */
-  .instructor-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5px; background: var(--ink); border: 1.5px solid var(--ink); margin-top: 56px; }
-  .instructor-card { background: var(--paper); padding: 48px 40px; transition: background 0.2s; }
-  .instructor-card:hover { background: var(--highlight); }
-  .instructor-letter { font-family: 'Bebas Neue', sans-serif; font-size: 6rem; line-height: 1; color: var(--rule); margin-bottom: 8px; }
-  .instructor-role { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent2); margin-bottom: 16px; }
-  .instructor-desc { font-size: 0.85rem; color: var(--muted); line-height: 1.7; }
-
-
-  /* PRICING SECTION */
-  .pricing-card {
-    border: 1.5px solid var(--ink); margin-top: 56px;
-    display: grid; grid-template-columns: 1fr 1fr;
-  }
-  .price-left { padding: 56px 48px; background: var(--ink); color: var(--paper); }
-  .price-label { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; color: var(--muted); margin-bottom: 16px; }
-  .price-amount { font-family: 'Bebas Neue', sans-serif; font-size: 7rem; line-height: 0.9; color: var(--accent); margin-bottom: 8px; }
-  .price-per { font-size: 0.78rem; color: #5a5450; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 32px; }
-  .price-spots { display: inline-flex; align-items: center; gap: 10px; background: #1A1A1A; padding: 10px 18px; }
-  .price-spots .dot { width: 8px; height: 8px; background: var(--accent); border-radius: 50%; animation: pulse 2s infinite; }
-  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
-  .price-spots span { font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase; color: #8a8480; }
-  .price-spots strong { color: var(--paper); }
-
-
-  .price-right { padding: 56px 48px; background: var(--paper); }
-  .price-includes-title { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; color: var(--muted); margin-bottom: 24px; }
-  .price-item { display: flex; align-items: flex-start; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--rule); }
-  .price-item:last-child { border-bottom: none; }
-  .price-item-icon { color: var(--accent); font-size: 0.9rem; margin-top: 2px; flex-shrink: 0; }
-  .price-item-text { font-size: 0.88rem; color: var(--ink); line-height: 1.4; }
-  .price-item-text span { font-size: 0.75rem; color: var(--muted); display: block; }
-
-
-  /* CTA */
-  .cta-section { background: var(--ink); color: var(--paper); padding: 112px 48px; text-align: center; position: relative; overflow: hidden; }
-  .cta-section::before { content: 'PMF'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-family: 'Bebas Neue', sans-serif; font-size: 40vw; color: transparent; -webkit-text-stroke: 1px rgba(255,255,255,0.04); letter-spacing: -0.05em; user-select: none; line-height: 1; }
-  .cta-section h2 { color: var(--paper); position: relative; z-index: 1; margin-bottom: 16px; }
-  .cta-section .cta-price { font-family: 'Bebas Neue', sans-serif; font-size: 3rem; color: var(--accent); position: relative; z-index: 1; margin-bottom: 12px; letter-spacing: 0.04em; }
-  .cta-section p { color: #8a8480; position: relative; z-index: 1; margin-bottom: 44px; font-size: 1.02rem; max-width: 480px; margin-left: auto; margin-right: auto; }
-  .cta-form { position: relative; z-index: 1; display: flex; gap: 0; max-width: 460px; margin: 0 auto 24px; }
-  .cta-form input { flex: 1; background: rgba(255,255,255,0.07); border: 1.5px solid rgba(255,255,255,0.15); border-right: none; color: var(--paper); padding: 16px 20px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; outline: none; transition: border-color 0.2s; }
-  .cta-form input::placeholder { color: rgba(255,255,255,0.25); }
-  .cta-form input:focus { border-color: var(--accent); }
-  .cta-form button { background: var(--accent); color: white; border: none; padding: 16px 28px; font-family: 'DM Sans', sans-serif; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; cursor: pointer; transition: background 0.2s; }
-  .cta-form button:hover { background: #c93a10; }
-  .cta-note { position: relative; z-index: 1; font-size: 0.72rem; color: #4a4642; letter-spacing: 0.06em; }
-
-
-  footer { background: var(--paper); padding: 44px 48px; display: flex; justify-content: space-between; align-items: center; border-top: 1.5px solid var(--ink); }
-  .footer-logo { font-family: 'Bebas Neue', sans-serif; font-size: 2.2rem; letter-spacing: 0.1em; color: var(--ink); }
-  .footer-logo span { color: var(--accent); }
-  .footer-copy { font-size: 0.75rem; color: var(--muted); }
-
-
-  .fade-in { opacity: 0; transform: translateY(28px); transition: opacity 0.65s ease, transform 0.65s ease; }
-  .fade-in.visible { opacity: 1; transform: translateY(0); }
-
-
-  @media (max-width: 900px) {
-    nav { padding: 14px 20px; }
-    .nav-links { display: none; }
-    .hero { grid-template-columns: 1fr; padding: 112px 20px 56px; }
-    section { padding: 56px 20px; }
-    .pillars { grid-template-columns: 1fr 1fr; }
-    .pillar { border-bottom: 1.5px solid var(--ink); }
-    .includes-grid { grid-template-columns: 1fr; }
-    .week-row { grid-template-columns: 1fr; }
-    .week-day { border-right: none; border-bottom: 1px solid var(--rule); }
-    .pricing-card { grid-template-columns: 1fr; }
-    .instructor-grid { grid-template-columns: 1fr; }
-    .capacity-box { flex-direction: column; gap: 16px; }
-    footer { flex-direction: column; gap: 12px; text-align: center; }
-  }
+:root {
+  --navy:#0B1120; --navy2:#131d30; --cream:#F7F3EC; --cream2:#EDE8DF;
+  --gold:#D4A843; --gold2:#F0C96A; --coral:#E8573A; --sky:#4A8FD4;
+  --muted:#8A8E9A; --rule:#D6D0C6; --glow:rgba(212,168,67,0.18);
+  --shadow-sm:0 2px 12px rgba(11,17,32,0.10); --shadow-md:0 8px 32px rgba(11,17,32,0.14); --shadow-lg:0 20px 60px rgba(11,17,32,0.20);
+  --radius:4px; --t:0.28s cubic-bezier(0.16,1,0.3,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--cream);color:var(--navy);font-family:'DM Sans',sans-serif;font-size:16px;line-height:1.65;overflow-x:hidden;}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");opacity:0.6;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(28px);}to{opacity:1;transform:none;}}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+@keyframes marquee{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.35;}}
+@keyframes goldGlow{0%,100%{box-shadow:0 0 0 0 var(--glow);}50%{box-shadow:0 0 28px 4px var(--glow);}}
+@keyframes shimmer{0%{background-position:0% 50%;}100%{background-position:200% 50%;}}
+.fade-up{opacity:0;transform:translateY(28px);transition:opacity 0.75s cubic-bezier(0.16,1,0.3,1),transform 0.75s cubic-bezier(0.16,1,0.3,1);}
+.fade-up.visible{opacity:1;transform:none;}
+::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:var(--cream2);}::-webkit-scrollbar-thumb{background:var(--gold);border-radius:3px;}
+::selection{background:var(--gold);color:var(--navy);}
+nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;justify-content:space-between;align-items:center;padding:18px 52px;background:rgba(247,243,236,0.88);backdrop-filter:blur(20px) saturate(1.4);border-bottom:1px solid rgba(11,17,32,0.08);box-shadow:0 1px 0 rgba(212,168,67,0.12),var(--shadow-sm);transition:padding var(--t),background var(--t),box-shadow var(--t);}
+nav.scrolled{padding:11px 52px;background:rgba(247,243,236,0.97);box-shadow:var(--shadow-md);}
+.nav-logo{font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:0.1em;color:var(--navy);text-decoration:none;}
+.nav-logo span{color:var(--gold);text-shadow:0 0 20px rgba(212,168,67,0.4);}
+.nav-links{display:flex;gap:28px;list-style:none;align-items:center;}
+.nav-links a{text-decoration:none;color:var(--navy);font-size:0.76rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;position:relative;padding-bottom:2px;transition:color var(--t);}
+.nav-links a::after{content:'';position:absolute;bottom:0;left:0;width:0;height:1.5px;background:var(--gold);transition:width var(--t);}
+.nav-links a:hover{color:var(--gold);}
+.nav-links a:hover::after{width:100%;}
+.nav-price{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;color:var(--gold);letter-spacing:0.08em;}
+.nav-cta{background:var(--navy) !important;color:var(--cream) !important;padding:9px 22px !important;font-size:0.74rem !important;border-radius:var(--radius);transition:all var(--t) !important;border:1.5px solid var(--navy) !important;}
+.nav-cta:hover{background:var(--gold) !important;color:var(--navy) !important;border-color:var(--gold) !important;transform:translateY(-1px);box-shadow:0 4px 16px rgba(212,168,67,0.35) !important;}
+.nav-cta::after{display:none !important;}
+.hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;background:none;border:none;padding:4px;}
+.hamburger span{display:block;width:22px;height:2px;background:var(--navy);border-radius:2px;transition:all 0.3s;}
+.mobile-menu{display:none;position:fixed;inset:0;background:var(--navy);z-index:199;flex-direction:column;justify-content:center;align-items:center;gap:24px;}
+.mobile-menu.open{display:flex;animation:fadeIn 0.3s ease;}
+.mobile-menu a{font-family:'Bebas Neue',sans-serif;font-size:3rem;letter-spacing:0.12em;color:var(--cream);text-decoration:none;transition:color 0.2s;}
+.mobile-menu a:hover{color:var(--gold);}
+.mobile-close{position:absolute;top:20px;right:24px;background:none;border:none;color:var(--cream);font-size:1.8rem;cursor:pointer;opacity:0.7;}
+.hero{height:100vh;display:flex;align-items:center;justify-content:center;background:var(--navy);border-bottom:1px solid rgba(212,168,67,0.2);position:relative;overflow:hidden;}
+.hero-canvas{position:absolute;inset:0;z-index:0;}
+.hero-content{position:relative;z-index:1;text-align:center;display:flex;flex-direction:column;align-items:center;gap:28px;}
+.hero-monogram{font-family:'Bebas Neue',sans-serif;font-size:clamp(100px,18vw,220px);line-height:1;letter-spacing:0.08em;color:transparent;-webkit-text-stroke:2px rgba(212,168,67,0.8);animation:fadeUp 1.2s cubic-bezier(0.16,1,0.3,1) both;user-select:none;}
+.hero-monogram span{color:var(--gold);-webkit-text-stroke:0;text-shadow:0 0 80px rgba(212,168,67,0.5);}
+.hero-fullform{font-family:'DM Sans',sans-serif;font-size:clamp(0.6rem,1.2vw,0.78rem);font-weight:600;letter-spacing:0.36em;text-transform:uppercase;color:rgba(212,168,67,0.55);animation:fadeUp 1s cubic-bezier(0.16,1,0.3,1) 0.15s both;margin-top:-16px;}
+.hero-rule{width:48px;height:1.5px;background:linear-gradient(90deg,transparent,var(--gold),transparent);animation:fadeUp 1s cubic-bezier(0.16,1,0.3,1) 0.2s both;}
+.hero-tagline{font-family:'DM Serif Display',serif;font-style:italic;font-size:clamp(1rem,2vw,1.3rem);color:rgba(247,243,236,0.75);letter-spacing:0.1em;animation:fadeUp 1s cubic-bezier(0.16,1,0.3,1) 0.3s both;}
+.hero-cta-group{display:flex;gap:16px;align-items:center;flex-wrap:wrap;justify-content:center;animation:fadeUp 1s cubic-bezier(0.16,1,0.3,1) 0.45s both;}
+.hero-scroll{position:absolute;bottom:28px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:6px;z-index:1;opacity:0.4;}
+.hero-scroll span{font-size:0.55rem;font-weight:700;letter-spacing:0.24em;text-transform:uppercase;color:var(--cream);}
+.hero-scroll-bar{width:1px;height:36px;background:linear-gradient(to bottom,var(--gold),transparent);animation:scrollDrop 2s ease-in-out infinite;}
+@keyframes scrollDrop{0%{transform:scaleY(0);transform-origin:top;opacity:1;}50%{transform:scaleY(1);transform-origin:top;}51%{transform-origin:bottom;}100%{transform:scaleY(0);transform-origin:bottom;opacity:0;}}
+.btn-primary{background:var(--gold);color:var(--navy);padding:15px 36px;font-family:'DM Sans',sans-serif;font-size:0.8rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;border:none;cursor:pointer;text-decoration:none;display:inline-block;border-radius:var(--radius);position:relative;overflow:hidden;transition:transform var(--t),box-shadow var(--t);box-shadow:0 4px 20px rgba(212,168,67,0.4);}
+.btn-primary::before{content:'';position:absolute;inset:0;background:linear-gradient(120deg,transparent 30%,rgba(255,255,255,0.28) 50%,transparent 70%);transform:translateX(-100%);transition:transform 0.5s ease;}
+.btn-primary:hover{transform:translateY(-3px);box-shadow:0 8px 32px rgba(212,168,67,0.5);}
+.btn-primary:hover::before{transform:translateX(100%);}
+.btn-ghost{color:var(--navy);font-size:0.8rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;text-decoration:none;display:inline-flex;align-items:center;gap:8px;border-bottom:1.5px solid var(--rule);padding-bottom:2px;transition:gap var(--t),border-color var(--t),color var(--t);}
+.btn-ghost:hover{gap:14px;color:var(--gold);border-color:var(--gold);}
+.hero-right{position:relative;z-index:1;animation:fadeUp 0.9s cubic-bezier(0.16,1,0.3,1) 0.15s both;}
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;border-radius:8px;overflow:hidden;border:1px solid var(--rule);box-shadow:var(--shadow-lg);}
+.stat-box{background:var(--cream);padding:36px 28px;transition:all var(--t);cursor:default;}
+.stat-box:hover{background:var(--navy);transform:scale(1.04);box-shadow:var(--shadow-md);z-index:1;position:relative;}
+.stat-box:hover .stat-num{color:var(--cream);}
+.stat-box:hover .stat-num span{color:var(--gold2);}
+.stat-box:hover .stat-label{color:var(--muted);}
+.stat-box.dark{background:var(--navy);}
+.stat-box.dark .stat-num{color:var(--cream);}
+.stat-box.dark .stat-label{color:var(--muted);}
+.stat-box.dark:hover{background:var(--gold);}
+.stat-box.dark:hover .stat-num,.stat-box.dark:hover .stat-label{color:var(--navy);}
+.stat-num{font-family:'Bebas Neue',sans-serif;font-size:3rem;line-height:1;color:var(--navy);margin-bottom:6px;}
+.stat-num span{color:var(--gold);}
+.stat-label{font-size:0.68rem;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:var(--muted);}
+.marquee-wrap{background:var(--navy);padding:13px 0;overflow:hidden;white-space:nowrap;border-top:1px solid rgba(212,168,67,0.18);border-bottom:1px solid rgba(212,168,67,0.18);position:relative;}
+.marquee-wrap::before,.marquee-wrap::after{content:'';position:absolute;top:0;bottom:0;width:80px;z-index:2;pointer-events:none;}
+.marquee-wrap::before{left:0;background:linear-gradient(to right,var(--navy),transparent);}
+.marquee-wrap::after{right:0;background:linear-gradient(to left,var(--navy),transparent);}
+.marquee-track{display:inline-block;animation:marquee 32s linear infinite;}
+.marquee-track span{font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:0.14em;color:rgba(247,243,236,0.7);margin:0 28px;}
+.marquee-track .dot{color:var(--gold);margin:0;}
+section{padding:100px 52px;border-bottom:1px solid var(--rule);}
+.section-label{font-size:0.68rem;font-weight:700;letter-spacing:0.26em;text-transform:uppercase;color:var(--gold);margin-bottom:14px;display:inline-flex;align-items:center;gap:10px;}
+.section-label::before{content:'';display:block;width:24px;height:2px;background:var(--gold);border-radius:1px;}
+h2{font-family:'Bebas Neue',sans-serif;font-size:clamp(40px,5.5vw,72px);line-height:0.95;letter-spacing:0.02em;margin-bottom:16px;color:var(--navy);}
+h2 em{font-style:italic;font-family:'DM Serif Display',serif;color:var(--gold);}
+.section-intro{max-width:600px;color:var(--muted);font-size:1rem;font-weight:300;line-height:1.8;margin-bottom:52px;}
+.section-intro strong{color:var(--navy);font-weight:600;}
+.pillars{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:8px;overflow:hidden;margin-top:52px;box-shadow:var(--shadow-sm);}
+.pillar{background:var(--cream);padding:44px 28px;transition:all var(--t);cursor:default;position:relative;overflow:hidden;}
+.pillar::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--gold),var(--gold2));transform:scaleX(0);transform-origin:left;transition:transform var(--t);}
+.pillar:hover{background:var(--navy);transform:translateY(-6px);box-shadow:var(--shadow-md);z-index:1;}
+.pillar:hover::after{transform:scaleX(1);}
+.pillar:hover .pillar-icon,.pillar:hover .pillar-title,.pillar:hover .pillar-desc{color:var(--cream);}
+.pillar:hover .pillar-icon{color:var(--gold);}
+.pillar-icon{font-size:2rem;margin-bottom:20px;display:block;transition:color var(--t);}
+.pillar-title{font-family:'DM Serif Display',serif;font-size:1.2rem;margin-bottom:10px;color:var(--navy);transition:color var(--t);}
+.pillar-desc{font-size:0.81rem;color:var(--muted);line-height:1.7;transition:color var(--t);}
+.topics-list{margin-top:52px;border:1px solid var(--rule);border-radius:8px;overflow:hidden;box-shadow:var(--shadow-sm);}
+.topic-row{display:grid;grid-template-columns:60px 1fr auto;align-items:center;gap:24px;padding:20px 28px;border-bottom:1px solid var(--rule);background:var(--cream);transition:background var(--t);cursor:default;}
+.topic-row:last-child{border-bottom:none;}
+.topic-row:hover{background:linear-gradient(90deg,rgba(212,168,67,0.08),transparent);}
+.topic-num{font-family:'Bebas Neue',sans-serif;font-size:2.2rem;line-height:1;color:var(--rule);transition:color var(--t);}
+.topic-row:hover .topic-num{color:var(--gold);}
+.topic-name{font-weight:600;font-size:0.92rem;color:var(--navy);margin-bottom:3px;}
+.topic-desc{font-size:0.77rem;color:var(--muted);line-height:1.55;}
+.week-badge{display:inline-block;font-size:0.6rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;padding:4px 12px;white-space:nowrap;border-radius:2px;color:white;}
+.week-badge.w1{background:var(--coral);}
+.week-badge.w2{background:var(--sky);}
+.week-badge.w3{background:#2D8A60;}
+.week-badge.w45{background:#7C50C4;}
+.weeks-grid{display:flex;flex-direction:column;margin-top:52px;gap:8px;}
+.week-row{display:grid;grid-template-columns:140px 1fr 1fr;background:var(--cream);border:1px solid var(--rule);border-radius:6px;overflow:hidden;transition:box-shadow var(--t);}
+.week-row:hover{box-shadow:var(--shadow-md);z-index:1;}
+.week-label{background:var(--navy);padding:28px 20px;display:flex;flex-direction:column;justify-content:center;gap:4px;border-right:1px solid rgba(212,168,67,0.15);}
+.week-label .wnum{font-family:'Bebas Neue',sans-serif;font-size:3rem;line-height:1;color:var(--gold);text-shadow:0 0 20px rgba(212,168,67,0.3);}
+.week-label .wtag{font-size:0.58rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--muted);}
+.week-day{padding:22px 26px;border-right:1px solid var(--rule);background:var(--cream);transition:background var(--t);}
+.week-day:last-child{border-right:none;}
+.week-row:hover .week-day{background:rgba(212,168,67,0.04);}
+.day-header{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.day-name{font-family:'Bebas Neue',sans-serif;font-size:1.25rem;letter-spacing:0.08em;color:var(--navy);}
+.day-format{font-size:0.58rem;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;padding:3px 9px;border-radius:2px;background:var(--rule);color:var(--muted);}
+.day-format.live{background:var(--coral);color:white;}
+.day-format.mock{background:var(--sky);color:white;}
+.day-format.mock1{background:#7C50C4;color:white;}
+.day-topic{font-size:0.84rem;color:var(--navy);font-weight:600;margin-bottom:4px;}
+.day-detail{font-size:0.75rem;color:var(--muted);line-height:1.55;}
+.instructor-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:52px;}
+.instructor-card{background:var(--cream2);padding:48px 40px;border-radius:8px;border:1px solid var(--rule);transition:all var(--t);position:relative;overflow:hidden;}
+.instructor-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--gold),var(--gold2),var(--gold));background-size:200% auto;animation:shimmer 3s linear infinite;}
+.instructor-card:hover{background:var(--cream);transform:translateY(-6px);box-shadow:var(--shadow-lg);}
+.instructor-letter{font-family:'Bebas Neue',sans-serif;font-size:4.2rem;line-height:1;color:var(--rule);margin-bottom:8px;transition:color var(--t);letter-spacing:0.06em;}
+.instructor-card:hover .instructor-letter{color:var(--gold);}
+.instructor-role{font-size:0.66rem;font-weight:700;letter-spacing:0.22em;text-transform:uppercase;color:var(--sky);margin-bottom:16px;}
+.instructor-desc{font-size:0.84rem;color:var(--muted);line-height:1.75;}.instructor-linkedin{display:inline-flex;align-items:center;margin-top:16px;font-size:0.74rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold);text-decoration:none;border-bottom:1px solid rgba(232,80,58,0.3);padding-bottom:2px;transition:all 0.2s;}.instructor-linkedin:hover{color:var(--gold2);border-color:var(--gold);}
+.pricing-card{margin-top:52px;display:grid;grid-template-columns:1fr 1.4fr;border:1px solid var(--rule);border-radius:10px;overflow:hidden;box-shadow:var(--shadow-lg);}
+.price-left{padding:56px 44px;background:var(--navy);position:relative;overflow:hidden;}
+.price-left::after{content:'₹';position:absolute;bottom:-20px;right:-10px;font-family:'Bebas Neue',sans-serif;font-size:200px;line-height:1;color:rgba(255,255,255,0.03);pointer-events:none;user-select:none;}
+.price-label{font-size:0.66rem;font-weight:700;letter-spacing:0.24em;text-transform:uppercase;color:var(--muted);margin-bottom:14px;}
+.price-amount{font-family:'Bebas Neue',sans-serif;font-size:7rem;line-height:0.88;color:var(--gold);margin-bottom:8px;text-shadow:0 0 40px rgba(212,168,67,0.4);}
+.price-per{font-size:0.75rem;color:#4a5060;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:28px;}
+.price-spots{display:inline-flex;align-items:center;gap:10px;background:rgba(255,255,255,0.06);padding:10px 16px;border-radius:var(--radius);margin-bottom:32px;border:1px solid rgba(212,168,67,0.2);}
+.price-spots .dot{width:8px;height:8px;background:var(--gold);border-radius:50%;animation:pulse 2s infinite;flex-shrink:0;}
+.price-spots span{font-size:0.72rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);}
+.price-spots strong{color:var(--cream);}
+.price-right{padding:56px 44px;background:var(--cream);}
+.price-includes-title{font-size:0.66rem;font-weight:700;letter-spacing:0.24em;text-transform:uppercase;color:var(--muted);margin-bottom:22px;}
+.price-item{display:flex;align-items:flex-start;gap:14px;padding:14px 0;border-bottom:1px solid var(--rule);}
+.price-item:last-child{border-bottom:none;}
+.price-item-icon{color:var(--gold);font-size:0.85rem;margin-top:3px;flex-shrink:0;}
+.price-item-text{font-size:0.87rem;color:var(--navy);line-height:1.5;font-weight:500;}
+.price-item-text span{font-size:0.74rem;color:var(--muted);display:block;margin-top:2px;font-weight:300;}
+.cta-section{background:var(--navy);color:var(--cream);padding:112px 52px;text-align:center;position:relative;overflow:hidden;}
+.cta-orb1{position:absolute;top:-120px;left:-120px;width:480px;height:480px;background:radial-gradient(circle,rgba(212,168,67,0.12) 0%,transparent 70%);border-radius:50%;pointer-events:none;}
+.cta-orb2{position:absolute;bottom:-80px;right:-80px;width:360px;height:360px;background:radial-gradient(circle,rgba(74,143,212,0.10) 0%,transparent 70%);border-radius:50%;pointer-events:none;}
+.cta-bg-word{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Bebas Neue',sans-serif;font-size:40vw;line-height:1;color:transparent;-webkit-text-stroke:1px rgba(255,255,255,0.03);letter-spacing:-0.05em;user-select:none;pointer-events:none;}
+.cta-section h2{color:var(--cream);position:relative;z-index:1;margin-bottom:14px;}
+.cta-price{font-family:'Bebas Neue',sans-serif;font-size:3.2rem;color:var(--gold);position:relative;z-index:1;margin-bottom:12px;letter-spacing:0.04em;text-shadow:0 0 30px rgba(212,168,67,0.4);}
+.cta-sub{color:rgba(247,243,236,0.5);position:relative;z-index:1;margin-bottom:44px;font-size:1rem;max-width:480px;margin-left:auto;margin-right:auto;line-height:1.7;}
+.cta-form{position:relative;z-index:1;display:flex;max-width:460px;margin:0 auto 24px;border-radius:var(--radius);overflow:hidden;box-shadow:0 0 0 1px rgba(212,168,67,0.3),var(--shadow-md);}
+.cta-form input{flex:1;background:rgba(255,255,255,0.07);border:none;color:var(--cream);padding:16px 20px;font-family:'DM Sans',sans-serif;font-size:0.9rem;outline:none;transition:background var(--t);}
+.cta-form input::placeholder{color:rgba(247,243,236,0.3);}
+.cta-form input:focus{background:rgba(255,255,255,0.11);}
+.cta-form button{background:var(--gold);color:var(--navy);border:none;padding:16px 28px;font-family:'DM Sans',sans-serif;font-size:0.77rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;cursor:pointer;transition:all var(--t);white-space:nowrap;}
+.cta-form button:hover{background:var(--gold2);box-shadow:0 0 20px rgba(212,168,67,0.4);}
+.cta-form button:disabled{background:var(--sky);cursor:default;}
+.cta-note{position:relative;z-index:1;font-size:0.7rem;color:rgba(247,243,236,0.22);letter-spacing:0.08em;margin-top:14px;}
+footer{background:var(--navy);padding:40px 52px;display:flex;justify-content:space-between;align-items:center;border-top:1px solid rgba(212,168,67,0.15);}
+.footer-logo{font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:0.1em;color:var(--cream);}
+.footer-logo span{color:var(--gold);text-shadow:0 0 16px rgba(212,168,67,0.5);}
+.footer-copy{font-size:0.72rem;color:var(--muted);}
+@media(max-width:900px){
+  nav{padding:14px 20px;}.nav-links{display:none;}.hamburger{display:flex;}
+  .hero{grid-template-columns:1fr;padding:108px 20px 60px;gap:40px;}.hero-right{display:none;}
+  .hero-bg-text{font-size:30vw;bottom:-20px;}
+  section{padding:64px 20px;}
+  .pillars{grid-template-columns:1fr 1fr;}
+  .pillar{border-bottom:1px solid var(--rule);}
+  .pillar:nth-child(even){border-right:none;}
+  .pillar:hover{transform:none;}
+  .topic-row{grid-template-columns:40px 1fr;}
+  .topic-row .week-badge{display:none;}
+  .week-row{grid-template-columns:1fr;}
+  .week-label{flex-direction:row;align-items:center;gap:12px;padding:16px 20px;}
+  .week-label .wnum{font-size:2rem;}
+  .week-day{border-right:none;border-bottom:1px solid var(--rule);padding:16px 20px;}
+  .week-day:last-child{border-bottom:none;}
+  .instructor-grid{grid-template-columns:1fr;gap:16px;}
+  .instructor-card{padding:32px 24px;}.instructor-card:hover{transform:none;}
+  .pricing-card{grid-template-columns:1fr;}
+  .price-left{padding:36px 24px;}.price-right{padding:36px 24px;}
+  .price-amount{font-size:5.5rem;}
+  .cta-section{padding:80px 20px;}
+  .cta-form{flex-direction:column;}
+  footer{flex-direction:column;gap:12px;text-align:center;padding:28px 20px;}
+}
+@media(max-width:540px){
+  h1{font-size:52px;}
+  .stats-grid{grid-template-columns:1fr 1fr;}
+  .pillars{grid-template-columns:1fr;}
+  .pillar{border-right:none;}
+}
 </style>
 </head>
 <body>
-
-
-<nav>
-  <a href="#" class="nav-logo">PM<span>F</span></a>
-  <ul class="nav-links">
-    <li><a href="#topics">Topics</a></li>
-    <li><a href="#schedule">Schedule</a></li>
-    <li><a href="#pricing">Pricing</a></li>
-    <li class="nav-price">₹5,999</li>
-    <li><a href="#enroll" class="nav-cta">Enroll Now</a></li>
-  </ul>
-</nav>
-
-
-<!-- HERO -->
-<section class="hero">
-  <div class="hero-bg-text">PMF</div>
-  <div class="hero-left">
-    <div class="hero-eyebrow">5 Weekends · 30 Seats · 2 Instructors</div>
-    <h1>Crack Your<br><em>PM</em><br>Placement.</h1>
-    <p class="hero-sub">
-      An intensive <strong>5-weekend program</strong> covering every PM interview format — guesstimates, product design, RCA, assignments, and resume — capped with a <strong>1:1 mock interview</strong> with a real instructor.
-    </p>
-    <div class="pricing-hero">
-      <span class="amount">₹5,999</span>
-      <span class="per">per student &nbsp;·&nbsp; 30 seats only</span>
-    </div>
-    <div class="hero-actions">
-      <a href="#enroll" class="btn-primary">Reserve Your Seat</a>
-      <a href="#schedule" class="btn-ghost">See Schedule →</a>
-    </div>
-  </div>
-  <div class="hero-right">
-    <div class="stats-grid">
-      <div class="stat-box">
-        <div class="stat-num">5<span>W</span></div>
-        <div class="stat-label">Weekends of Training</div>
-      </div>
-      <div class="stat-box dark">
-        <div class="stat-num">30<span></span></div>
-        <div class="stat-label">Students Max</div>
-      </div>
-      <div class="stat-box dark">
-        <div class="stat-num">2<span></span></div>
-        <div class="stat-label">Instructors</div>
-      </div>
-      <div class="stat-box">
-        <div class="stat-num">1<span>:1</span></div>
-        <div class="stat-label">Mock + Resume Review</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-
-<!-- MARQUEE -->
-<div class="marquee-wrap">
-  <div class="marquee-track">
-    <span>Guesstimates</span><span class="dot">✦</span>
-    <span>Product Design</span><span class="dot">✦</span>
-    <span>Root Cause Analysis</span><span class="dot">✦</span>
-    <span>PM Assignments</span><span class="dot">✦</span>
-    <span>Resume Masterclass</span><span class="dot">✦</span>
-    <span>1:1 Mock Interviews</span><span class="dot">✦</span>
-    <span>Breakout Peer Mocks</span><span class="dot">✦</span>
-    <span>Interview Formats</span><span class="dot">✦</span>
-    <span>Guesstimates</span><span class="dot">✦</span>
-    <span>Product Design</span><span class="dot">✦</span>
-    <span>Root Cause Analysis</span><span class="dot">✦</span>
-    <span>PM Assignments</span><span class="dot">✦</span>
-    <span>Resume Masterclass</span><span class="dot">✦</span>
-    <span>1:1 Mock Interviews</span><span class="dot">✦</span>
-    <span>Breakout Peer Mocks</span><span class="dot">✦</span>
-    <span>Interview Formats</span><span class="dot">✦</span>
-  </div>
-</div>
-
-
-<!-- WHAT YOU GET -->
-<section>
-  <div class="section-label">What's Included</div>
-  <h2>Built Around<br><em>Real Interviews</em></h2>
-  <p class="section-intro">
-    Every Saturday is a <strong>live class</strong>. Every Sunday is a <strong>peer mock practice</strong>. Weeks 4 and 5 include a dedicated <strong>1-hour 1:1 mock interview and resume review</strong> with an instructor.
-  </p>
-  <div class="pillars fade-in">
-    <div class="pillar">
-      <div class="pillar-icon">📖</div>
-      <div class="pillar-title">5 Live Classes</div>
-      <p class="pillar-desc">Every Saturday — structured teaching covering PM interview cases, guesstimates, product design, RCA, PM assignments, and resume strategy.</p>
-    </div>
-    <div class="pillar">
-      <div class="pillar-icon">🔁</div>
-      <div class="pillar-title">4 Sunday Peer Mocks</div>
-      <p class="pillar-desc">Sundays are practice. You'll be split into breakout groups to run live mock rounds with peers. Treat every Sunday like a real interview.</p>
-    </div>
-    <div class="pillar">
-      <div class="pillar-icon">🎯</div>
-      <div class="pillar-title">1:1 Mock Interview</div>
-      <p class="pillar-desc">1 hour with an instructor. Full mock in your chosen format, followed by deep feedback. Scheduled across Weeks 4 & 5 for all 30 students.</p>
-    </div>
-    <div class="pillar">
-      <div class="pillar-icon">📄</div>
-      <div class="pillar-title">Resume Review</div>
-      <p class="pillar-desc">Line-by-line resume review with each 1:1 mock slot. PM-lens feedback, impact framing, and rewrite guidance from an instructor.</p>
-    </div>
-  </div>
-</section>
-
-
-<!-- TOPICS COVERED -->
-<section id="topics">
-  <div class="section-label">7 Topics</div>
-  <h2>Everything APM<br><em>Panels Test</em></h2>
-  <p class="section-intro">Seven core topics across five weeks — from the basics of how PM interviews work to advanced mock prep.</p>
-
-
-  <table class="topics-table fade-in">
-    <thead>
-      <tr>
-        <th style="width:48px">#</th>
-        <th>Topic</th>
-        <th>Week</th>
-        <th>What You Learn</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--rule)">1</td>
-        <td><span class="topic-name">Overview of PM Cases & Interview Formats</span></td>
-        <td><span class="week-badge w1">Week 1</span></td>
-        <td style="font-size:0.82rem;color:var(--muted)">What types of PM interviews exist, how panels evaluate candidates, how to structure answers from day one.</td>
-      </tr>
-      <tr>
-        <td style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--rule)">2</td>
-        <td><span class="topic-name">Guesstimates</span></td>
-        <td><span class="week-badge w1">Week 1</span></td>
-        <td style="font-size:0.82rem;color:var(--muted)">Frameworks for estimation questions, how to think aloud, avoid common traps, and structure your numbers confidently.</td>
-      </tr>
-      <tr>
-        <td style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--rule)">3</td>
-        <td><span class="topic-name">Product Design</span></td>
-        <td><span class="week-badge w2">Week 2</span></td>
-        <td style="font-size:0.82rem;color:var(--muted)">User-centred design framework, how to scope a problem, identify user segments, generate solutions, and pick the best one.</td>
-      </tr>
-      <tr>
-        <td style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--rule)">4</td>
-        <td><span class="topic-name">Problem Solving & RCA</span></td>
-        <td><span class="week-badge w3">Week 3</span></td>
-        <td style="font-size:0.82rem;color:var(--muted)">Root cause analysis for metric drop questions. Structured diagnostic thinking with frameworks like MECE, 5-Whys, and funnel analysis.</td>
-      </tr>
-      <tr>
-        <td style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--rule)">5</td>
-        <td><span class="topic-name">How to Approach a PM Assignment</span></td>
-        <td><span class="week-badge w45">Week 4</span></td>
-        <td style="font-size:0.82rem;color:var(--muted)">Breaking down take-home assignments — scoping, structuring, writing, and presenting. How to avoid over-engineering and under-answering.</td>
-      </tr>
-      <tr>
-        <td style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--rule)">6</td>
-        <td><span class="topic-name">Resume Masterclass</span></td>
-        <td><span class="week-badge w45">Week 4</span></td>
-        <td style="font-size:0.82rem;color:var(--muted)">PM resume anatomy, how to frame non-PM experience, quantifying impact, what hiring managers look for, common mistakes to fix.</td>
-      </tr>
-      <tr>
-        <td style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--rule)">7</td>
-        <td><span class="topic-name">1:1 Mock + Resume Review</span></td>
-        <td><span class="week-badge w45">Weeks 4 & 5</span></td>
-        <td style="font-size:0.82rem;color:var(--muted)">1 hour per student with an instructor — full mock interview followed by a resume line-by-line review and personalised feedback.</td>
-      </tr>
-    </tbody>
-  </table>
-</section>
-
-
-<!-- SCHEDULE -->
-<section id="schedule">
-  <div class="section-label">Course Schedule</div>
-  <h2>5 Weekends,<br><em>Week by Week</em></h2>
-  <p class="section-intro">
-    <strong>Saturdays are for classes</strong> — attend and take notes. <strong>Sundays are for practice</strong> — breakout group mock rounds. In Weeks 4 & 5, Sundays become dedicated 1:1 mock slots.
-  </p>
-
-
-  <div class="weeks-grid fade-in">
-
-
-    <!-- WEEK 1 -->
-    <div class="week-row">
-      <div class="week-label">
-        <div class="wnum">01</div>
-        <div class="wtag">PM Foundations</div>
-      </div>
-      <div class="week-day">
-        <div class="day-header">
-          <span class="day-name">SATURDAY</span>
-          <span class="day-format live">📖 Class</span>
-        </div>
-        <div class="day-topic">Overview of PM Cases & Interviews + Guesstimates</div>
-        <div class="day-detail">What PMs do, how interviews are structured, types of PM rounds. Deep dive into guesstimation frameworks and how to structure estimates confidently.</div>
-      </div>
-      <div class="week-day">
-        <div class="day-header">
-          <span class="day-name">SUNDAY</span>
-          <span class="day-format mock">🔁 Peer Mocks</span>
-        </div>
-        <div class="day-topic">Peer Guesstimate Mock Rounds</div>
-        <div class="day-detail">Breakout groups. Each student runs a guesstimate mock as both interviewer and interviewee. Come prepared — treat it like the real thing.</div>
-      </div>
-    </div>
-
-
-    <!-- WEEK 2 -->
-    <div class="week-row">
-      <div class="week-label">
-        <div class="wnum">02</div>
-        <div class="wtag">Product Design</div>
-      </div>
-      <div class="week-day">
-        <div class="day-header">
-          <span class="day-name">SATURDAY</span>
-          <span class="day-format live">📖 Class</span>
-        </div>
-        <div class="day-topic">Product Design</div>
-        <div class="day-detail">User-centred design framework. How to scope, segment users, generate solutions, and pick the best one. Live example walkthroughs.</div>
-      </div>
-      <div class="week-day">
-        <div class="day-header">
-          <span class="day-name">SUNDAY</span>
-          <span class="day-format mock">🔁 Peer Mocks</span>
-        </div>
-        <div class="day-topic">Peer Product Design Mock Rounds</div>
-        <div class="day-detail">Breakout practice on product design questions. Give and receive structured feedback on answer quality and depth.</div>
-      </div>
-    </div>
-
-
-    <!-- WEEK 3 -->
-    <div class="week-row">
-      <div class="week-label">
-        <div class="wnum">03</div>
-        <div class="wtag">RCA</div>
-      </div>
-      <div class="week-day">
-        <div class="day-header">
-          <span class="day-name">SATURDAY</span>
-          <span class="day-format live">📖 Class</span>
-        </div>
-        <div class="day-topic">Problem Solving & Root Cause Analysis</div>
-        <div class="day-detail">Metric drop scenarios, funnel-based diagnosis, MECE thinking, 5-Whys. How to structure RCA answers under time pressure.</div>
-      </div>
-      <div class="week-day">
-        <div class="day-header">
-          <span class="day-name">SUNDAY</span>
-          <span class="day-format mock">🔁 Peer Mocks</span>
-        </div>
-        <div class="day-topic">Peer RCA Mock Rounds</div>
-        <div class="day-detail">Breakout RCA practice. Real metric-drop scenarios. Students rotate between interviewer and candidate roles.</div>
-      </div>
-    </div>
-
-
-    <!-- WEEK 4 -->
-    <div class="week-row">
-      <div class="week-label">
-        <div class="wnum">04</div>
-        <div class="wtag">Assignment + Resume</div>
-      </div>
-      <div class="week-day">
-        <div class="day-header">
-          <span class="day-name">SATURDAY</span>
-          <span class="day-format live">📖 Class</span>
-        </div>
-        <div class="day-topic">PM Assignment Approach + Resume Masterclass</div>
-        <div class="day-detail">How to approach and structure a take-home PM assignment. Followed by resume masterclass — PM framing, impact quantification, ATS readiness.</div>
-      </div>
-      <div class="week-day">
-        <div class="day-header">
-          <span class="day-name">SUNDAY</span>
-          <span class="day-format mock1">🎯 1:1 Mock</span>
-        </div>
-        <div class="day-topic">10 Students — 1:1 Instructor Mocks + Resume Review</div>
-        <div class="day-detail">Instructor A: 5 students &nbsp;·&nbsp; Instructor B: 5 students. 1 hour each — full mock interview + personalised resume review.</div>
-      </div>
-    </div>
-
-
-    <!-- WEEK 5 SAT -->
-    <div class="week-row">
-      <div class="week-label">
-        <div class="wnum">05</div>
-        <div class="wtag">Final Mocks</div>
-      </div>
-      <div class="week-day">
-        <div class="day-header">
-          <span class="day-name">SATURDAY</span>
-          <span class="day-format mock1">🎯 1:1 Mock</span>
-        </div>
-        <div class="day-topic">10 Students — 1:1 Instructor Mocks + Resume Review</div>
-        <div class="day-detail">Instructor A: 5 students &nbsp;·&nbsp; Instructor B: 5 students. 1 hour each — full mock interview + personalised resume review.</div>
-      </div>
-      <div class="week-day">
-        <div class="day-header">
-          <span class="day-name">SUNDAY</span>
-          <span class="day-format mock1">🎯 1:1 Mock</span>
-        </div>
-        <div class="day-topic">10 Students — 1:1 Instructor Mocks + Resume Review</div>
-        <div class="day-detail">Instructor A: 5 students &nbsp;·&nbsp; Instructor B: 5 students. 1 hour each — full mock interview + personalised resume review.</div>
-      </div>
-    </div>
-
-
-  </div>
-
-
-  <!-- Capacity box -->
-  <div class="capacity-box fade-in">
-    <div class="cap-formula">2 × 5hrs × 3 slots = 30</div>
-    <div class="cap-desc">
-      <strong>Mock capacity explained:</strong> 2 instructors × 5 students per slot × 3 slots (Week 4 Sunday + Week 5 Saturday + Week 5 Sunday) = exactly <strong>30 students</strong>. Every student gets a 1:1. No exceptions, no waiting lists.
-    </div>
-  </div>
-</section>
-
-
-<!-- INSTRUCTORS -->
-<section>
-  <div class="section-label">Instructors</div>
-  <h2>2 Instructors.<br><em>Real Experience.</em></h2>
-  <p class="section-intro">Two instructors who've been through the PM hiring process and know exactly what interviewers look for. Every student gets time with both.</p>
-  <div class="instructor-grid fade-in">
-    <div class="instructor-card">
-      <div class="instructor-letter">A</div>
-      <div class="instructor-role">Instructor A · Product Manager</div>
-      <p class="instructor-desc">Leads sessions on PM interview foundations, guesstimates, and product design. Conducts 15 of the 30 1:1 mock sessions across Weeks 4 & 5. Brings direct hiring-side perspective to feedback.</p>
-    </div>
-    <div class="instructor-card">
-      <div class="instructor-letter">B</div>
-      <div class="instructor-role">Instructor B · Product Manager</div>
-      <p class="instructor-desc">Leads sessions on RCA, PM assignments, and the resume masterclass. Conducts the remaining 15 of the 30 1:1 mock sessions. Deep focus on structuring and written PM communication.</p>
-    </div>
-  </div>
-</section>
-
-
-<!-- PRICING -->
-<section id="pricing">
-  <div class="section-label">Pricing</div>
-  <h2>One Price.<br><em>Everything Included.</em></h2>
-  <p class="section-intro">₹5,999 per student. No upsells, no add-ons, no hidden fees. The 1:1 mock and resume review are included for every single student.</p>
-
-
-  <div class="pricing-card fade-in">
-    <div class="price-left">
-      <div class="price-label">Cohort Fee</div>
-      <div class="price-amount">₹5,999</div>
-      <div class="price-per">Per student &nbsp;·&nbsp; One-time</div>
-      <div class="price-spots">
-        <span class="dot"></span>
-        <span><strong>30 seats</strong> total &nbsp;·&nbsp; Limited cohort</span>
-      </div>
-    </div>
-    <div class="price-right">
-      <div class="price-includes-title">What's included</div>
-      <div class="price-item">
-        <span class="price-item-icon">✦</span>
-        <div class="price-item-text">5 Saturday live classes
-          <span>PM cases, guesstimates, product design, RCA, assignments & resume</span>
+<div id="root"></div>
+<script type="text/babel">
+const {useState,useEffect,useRef}=React;
+function useVisible(){const ref=useRef(null);const[v,setV]=useState(false);useEffect(()=>{const obs=new IntersectionObserver(([e])=>{if(e.isIntersecting){setV(true);obs.disconnect();}},{threshold:0.07});if(ref.current)obs.observe(ref.current);return()=>obs.disconnect();},[]);return[ref,v];}
+function FadeUp({children,delay=0}){const[ref,v]=useVisible();return<div ref={ref} className={`fade-up ${v?'visible':''}`} style={{transitionDelay:`${delay}s`}}>{children}</div>;}
+function Nav(){const[scrolled,setScrolled]=useState(false);const[open,setOpen]=useState(false);useEffect(()=>{const h=()=>setScrolled(window.scrollY>40);window.addEventListener('scroll',h);return()=>window.removeEventListener('scroll',h);},[]);const links=[{href:'#whatsincluded',label:"What's Included"},{href:'#topics',label:'Topics'},{href:'#pricing',label:'Pricing'}];return(<><nav className={scrolled?'scrolled':''}><a href="#" className="nav-logo">PM<span>F</span></a><ul className="nav-links">{links.map(l=><li key={l.href}><a href={l.href}>{l.label}</a></li>)}<li><a href="#enroll" className="nav-cta">Enroll Now</a></li></ul><button className="hamburger" onClick={()=>setOpen(true)}><span/><span/><span/></button></nav><div className={`mobile-menu ${open?'open':''}`}><button className="mobile-close" onClick={()=>setOpen(false)}>✕</button>{links.map(l=><a key={l.href} href={l.href} onClick={()=>setOpen(false)}>{l.label}</a>)}<a href="#enroll" onClick={()=>setOpen(false)} style={{color:'var(--gold)'}}>Enroll — ₹5,999</a></div></>);}
+function Hero(){
+  const canvasRef=useRef(null);
+  useEffect(()=>{
+    const canvas=canvasRef.current;
+    const ctx=canvas.getContext('2d');
+    let W=canvas.width=canvas.offsetWidth;
+    let H=canvas.height=canvas.offsetHeight;
+    let t=0;
+    const waves=[
+      {amp:60,freq:0.012,speed:0.018,y:0.3,col:'212,168,67',  lw:1.5,op:0.5},
+      {amp:45,freq:0.010,speed:0.013,y:0.45,col:'74,143,212', lw:1.2,op:0.4},
+      {amp:70,freq:0.009,speed:0.010,y:0.55,col:'124,80,196', lw:1.0,op:0.3},
+      {amp:40,freq:0.014,speed:0.020,y:0.65,col:'45,138,96',  lw:1.2,op:0.35},
+      {amp:55,freq:0.011,speed:0.015,y:0.38,col:'212,168,67', lw:0.8,op:0.25},
+      {amp:35,freq:0.016,speed:0.022,y:0.72,col:'74,143,212', lw:0.9,op:0.2},
+    ];
+        function draw(){
+      ctx.clearRect(0,0,W,H);
+      waves.forEach(w=>{
+        ctx.beginPath();
+        for(let x=0;x<=W;x+=2){
+          const y=H*w.y + Math.sin(x*w.freq + t*w.speed)*w.amp
+                        + Math.sin(x*w.freq*1.7 + t*w.speed*0.6)*w.amp*0.4;
+          x===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+        }
+        ctx.strokeStyle=`rgba(${w.col},${w.op})`;
+        ctx.lineWidth=w.lw;
+        ctx.stroke();
+      });
+      t++;
+      requestAnimationFrame(draw);
+    }
+    draw();
+    const resize=()=>{W=canvas.width=canvas.offsetWidth;H=canvas.height=canvas.offsetHeight;};
+    window.addEventListener('resize',resize);
+    return()=>window.removeEventListener('resize',resize);
+  },[]);
+  return(
+    <section className="hero">
+      <canvas ref={canvasRef} className="hero-canvas" style={{width:'100%',height:'100%'}}/>
+      <div className="hero-content">
+        <div className="hero-monogram">PM<span>F</span></div>
+        <div className="hero-fullform">Product · Manager · Fit</div>
+        <div className="hero-rule"/>
+        <div className="hero-tagline">Crack your PM placement.</div>
+        <div className="hero-cta-group">
+          <a href="https://forms.gle/iDayLRNitrFR1EyAA" target="_blank" className="btn-primary">Register Now</a>
+          <a href="#topics" className="btn-ghost" style={{color:'rgba(247,243,236,0.85)',borderColor:'rgba(247,243,236,0.5)'}}>Explore Program →</a>
         </div>
       </div>
-      <div class="price-item">
-        <span class="price-item-icon">✦</span>
-        <div class="price-item-text">4 Sunday breakout peer mock sessions
-          <span>Structured practice rounds in groups — all formats covered</span>
-        </div>
+      <div className="hero-scroll">
+        <div className="hero-scroll-bar"/>
+        <span>Scroll</span>
       </div>
-      <div class="price-item">
-        <span class="price-item-icon">✦</span>
-        <div class="price-item-text">1 hour 1:1 mock interview with an instructor
-          <span>Full mock — real format, real feedback, no holding back</span>
-        </div>
-      </div>
-      <div class="price-item">
-        <span class="price-item-icon">✦</span>
-        <div class="price-item-text">Resume review from an instructor
-          <span>Line-by-line, PM-lens feedback included with your 1:1 slot</span>
-        </div>
-      </div>
-      <div class="price-item">
-        <span class="price-item-icon">✦</span>
-        <div class="price-item-text">Access to cohort community
-          <span>Stay connected with 29 other serious APM aspirants</span>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
+    </section>
+  );
+}
+function Marquee(){const items=['Guesstimates','Product Design','Root Cause Analysis','PM Assignments','Resume Masterclass','1:1 Mock Interviews','Peer Mock Rounds','Interview Formats'];return(<div className="marquee-wrap"><div className="marquee-track">{[...items,...items].map((t,i)=><React.Fragment key={i}><span>{t}</span><span className="dot">✦</span></React.Fragment>)}</div></div>);}
+function WhatYouGet(){const pillars=[{icon:'📖',title:'Live Classes',desc:'PM cases including guesstimates, product design, RCA, assignments and resume taught live.'},{icon:'🔁',title:'Mock Interviews',desc:'Breakout groups with live mocks with peers'},{icon:'🎯',title:'1:1 Mock Interview',desc:'1 hour with an instructor. Full mock in your chosen format, followed by deep personalised feedback.'},{icon:'📄',title:'Resume Review',desc:'Line-by-line PM-lens feedback included with your 1:1 slot. Impact framing and rewrite guidance.'}];return(<section id="whatsincluded"><div className="section-label">What's Included</div><h2>Built Around<br/><em>Real Interviews</em></h2><FadeUp><div className="pillars">{pillars.map((p,i)=><div key={i} className="pillar"><span className="pillar-icon">{p.icon}</span><div className="pillar-title">{p.title}</div><p className="pillar-desc">{p.desc}</p></div>)}</div></FadeUp></section>);}
+function Topics(){const topics=[{num:'1',name:'PM Cases & Interview Formats',week:'Week 1',wc:'w1',desc:'What PM interviews exist, how panels evaluate, how to structure answers from day one.'},{num:'2',name:'Guesstimates',week:'Week 1',wc:'w1',desc:'Estimation frameworks, thinking aloud, avoiding traps, structuring numbers confidently.'},{num:'3',name:'Product Design',week:'Week 2',wc:'w2',desc:'User-centred design — scope the problem, segment users, generate solutions, pick the best.'},{num:'4',name:'Problem Solving & RCA',week:'Week 3',wc:'w3',desc:'Root cause analysis for metric drops. MECE, 5-Whys, funnel analysis under pressure.'},{num:'5',name:'PM Assignment Approach',week:'Week 4',wc:'w45',desc:'Breaking down take-home assignments — scoping, structuring, writing, presenting.'},{num:'6',name:'Resume Masterclass',week:'Week 4',wc:'w45',desc:'PM resume anatomy, framing non-PM experience, quantifying impact, ATS readiness.'},{num:'7',name:'1:1 Mock + Resume Review',week:'Wk 4 & 5',wc:'w45',desc:'1 hour per student with an instructor — full mock + resume line-by-line review.'}];return(<section id="topics"><div className="section-label">7 Topics</div><h2>Everything you need<br/><em>for APM Interviews</em></h2><FadeUp><div className="topics-list">{topics.map((t,i)=><div key={i} className="topic-row"><div className="topic-num">{t.num}</div><div><div className="topic-name">{t.name}</div><div className="topic-desc">{t.desc}</div></div><span className={`week-badge ${t.wc}`}>{t.week}</span></div>)}</div></FadeUp></section>);}
+function Schedule(){const weeks=[{num:'01',tag:'PM Foundations',sat:{topic:'PM Cases & Guesstimates',detail:'How interviews are structured, guesstimation frameworks, types of PM rounds.',type:'live',label:'📖 Class'},sun:{topic:'Peer Guesstimate Mocks',detail:'Breakout groups. Each student runs a mock as interviewer and interviewee.',type:'mock',label:'🔁 Peer Mocks'}},{num:'02',tag:'Product Design',sat:{topic:'Product Design',detail:'User-centred framework — scope, segment, generate solutions. Live walkthroughs.',type:'live',label:'📖 Class'},sun:{topic:'Peer Product Design Mocks',detail:'Breakout practice. Give and receive structured feedback on answer quality.',type:'mock',label:'🔁 Peer Mocks'}},{num:'03',tag:'RCA',sat:{topic:'Problem Solving & RCA',detail:'Metric drops, funnel-based diagnosis, MECE thinking, 5-Whys under time pressure.',type:'live',label:'📖 Class'},sun:{topic:'Peer RCA Mocks',detail:'Real metric-drop scenarios. Students rotate between interviewer and candidate.',type:'mock',label:'🔁 Peer Mocks'}},{num:'04',tag:'Assignment + Resume',sat:{topic:'PM Assignment + Resume Masterclass',detail:'Take-home assignment approach + resume masterclass, PM framing & ATS.',type:'live',label:'📖 Class'},sun:{topic:'10 Students — 1:1 Mocks',detail:'Instructor A: 5 students · Instructor B: 5 students. 1 hour each.',type:'mock1',label:'🎯 1:1 Mock'}},{num:'05',tag:'Final Mocks',sat:{topic:'10 Students — 1:1 Mocks',detail:'Instructor A: 5 students · Instructor B: 5 students. 1 hour each.',type:'mock1',label:'🎯 1:1 Mock'},sun:{topic:'10 Students — 1:1 Mocks',detail:'Final batch. Every student gets their 1 hour. No exceptions.',type:'mock1',label:'🎯 1:1 Mock'}}];return(<section id="schedule"><div className="section-label">Course Schedule</div><h2>5 Weekends,<br/><em>Week by Week</em></h2><p className="section-intro"><strong>Saturdays are for classes.</strong> <strong>Sundays are for practice.</strong> Weeks 4 &amp; 5 Sundays are dedicated 1:1 mock slots with instructors.</p><FadeUp><div className="weeks-grid">{weeks.map((w,i)=><div key={i} className="week-row"><div className="week-label"><div className="wnum">{w.num}</div><div className="wtag">{w.tag}</div></div>{[w.sat,w.sun].map((day,j)=><div key={j} className="week-day"><div className="day-header"><span className="day-name">{j===0?'SATURDAY':'SUNDAY'}</span><span className={`day-format ${day.type}`}>{day.label}</span></div><div className="day-topic">{day.topic}</div><div className="day-detail">{day.detail}</div></div>)}</div>)}</div></FadeUp></section>);}
+function Instructors(){return(<section><div className="section-label">Instructors</div><h2>2 Instructors.<br/><em>Real Experience.</em></h2><p className="section-intro">Two PMs who've been through the hiring process and know exactly what interviewers look for. Every student gets time with both.</p><FadeUp><div className="instructor-grid">{[{letter:'AG',role:'Anubhav Goyal · Product Manager',linkedin:'https://www.linkedin.com/in/anubhav-goyal11/',desc:'Leads sessions on PM foundations, guesstimates, and product design. Conducts 15 of the 30 1:1 mock sessions. Brings direct hiring-side perspective.'},{letter:'AB',role:'Akshit Bagde · Product Manager',linkedin:'https://www.linkedin.com/in/akshit-bagde/',desc:'Leads sessions on RCA, PM assignments, and the resume masterclass. Conducts the remaining 15 1:1 mocks. Deep focus on structuring and written communication.'}].map((ins,i)=><div key={i} className="instructor-card"><div className="instructor-letter">{ins.letter}</div><div className="instructor-role">{ins.role}</div><p className="instructor-desc">{ins.desc}</p><a href={ins.linkedin} target="_blank" className="instructor-linkedin">View LinkedIn →</a></div>)}</div></FadeUp></section>);}
+function Pricing(){const includes=[{title:'Live classes',sub:'PM cases, guesstimates, product design, RCA, assignments & resume'},{title:'Peer mock sessions',sub:'Structured practice rounds in groups — all formats covered'},{title:'1:1 mock interview with instructors',sub:'Full mock — real format, real feedback, no holding back'},{title:'Resume review from instructors',sub:'Line-by-line, PM-lens feedback included with your 1:1 slot'},{title:'Access to cohort community',sub:'Stay connected with serious APM aspirants'}];return(<section id="pricing"><div className="section-label">Pricing</div><h2>One Price.<br/><em>Everything Included.</em></h2><p className="section-intro">₹5,999 per student. No upsells, no add-ons. The 1:1 mock and resume review are included for every single student.</p><FadeUp><div className="pricing-card"><div className="price-left"><div className="price-label">Cohort Fee</div><div className="price-amount">₹5,999</div><div className="price-per">Per student · One-time</div><div className="price-spots"><span className="dot"></span><span><strong>30 seats</strong> total · Limited cohort</span></div></div><div className="price-right"><div className="price-includes-title">What's Included</div>{includes.map((item,i)=><div key={i} className="price-item"><span className="price-item-icon">✦</span><div className="price-item-text">{item.title}<span>{item.sub}</span></div></div>)}</div></div></FadeUp></section>);}
+function CTA(){return(<section className="cta-section" id="enroll"><div className="cta-orb1"/><div className="cta-orb2"/><div className="cta-bg-word">PMF</div><FadeUp><h2>30 Seats.<br/><em style={{fontFamily:"'DM Serif Display',serif",fontStyle:'italic',color:'var(--gold)'}}>Don't Miss Yours.</em></h2><div className="cta-price">₹5,999 / student</div><p className="cta-sub">5 weeks. 7 topics. 1:1 mock with an instructor. Everything to crack your APM placement.</p><a href="https://forms.gle/iDayLRNitrFR1EyAA" target="_blank" className="btn-primary" style={{display:'inline-block',fontSize:'0.9rem',padding:'18px 48px',letterSpacing:'0.16em',position:'relative',zIndex:1}}>Register Now →</a><p className="cta-note" style={{marginTop:'24px'}}>5 Weeks · ₹5,999 All-inclusive</p></FadeUp></section>);}
 
-
-<!-- CTA -->
-<section class="cta-section" id="enroll">
-  <h2>30 Seats.<br><em style="font-family:'DM Serif Display',serif;font-style:italic;color:var(--accent)">Don't Miss Yours.</em></h2>
-  <div class="cta-price">₹5,999 / student</div>
-  <p>5 weekends. 7 topics. 1:1 mock with an instructor. Everything you need to crack your PM placement — in one cohort.</p>
-  <div class="cta-form">
-    <input type="email" placeholder="your@email.com">
-    <button onclick="handleEnroll(this)">Reserve Seat →</button>
-  </div>
-  <p class="cta-note">5 Weekends &nbsp;·&nbsp; 30 Students &nbsp;·&nbsp; 2 Instructors &nbsp;·&nbsp; ₹5,999 All-inclusive</p>
-</section>
-
-
-<footer>
-  <div class="footer-logo">PM<span>F</span></div>
-  <div class="footer-copy">© 2025 PMF — Product. Market. Fit.</div>
-</footer>
-
-
-<script>
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
-  }, { threshold: 0.06 });
-  document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
-
-
-  function handleEnroll(btn) {
-    const input = btn.previousElementSibling;
-    if (!input.value || !input.value.includes('@')) { input.style.borderColor = '#E84C1E'; return; }
-    btn.textContent = '✓ Seat Reserved!';
-    btn.style.background = '#2B5CE6';
-    btn.disabled = true; input.disabled = true;
-  }
-
-
-  document.querySelectorAll('a[href^="#"]').forEach(a => {
-    a.addEventListener('click', e => {
-      e.preventDefault();
-      const t = document.querySelector(a.getAttribute('href'));
-      if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    });
-  });
+function Footer(){return(<footer><div className="footer-logo">PM<span>F</span></div><div className="footer-copy">© 2026 PMF — Product. Manager. Fit.</div></footer>);}
+function App(){return(<><Nav/><Hero/><Marquee/><WhatYouGet/><Topics/><Instructors/><Pricing/><CTA/><Footer/></>);}
+ReactDOM.render(<App/>,document.getElementById('root'));
 </script>
 </body>
 </html>
